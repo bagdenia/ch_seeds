@@ -1,0 +1,22 @@
+version: "2"
+
+compose:
+  files:
+    - ./docker-compose.yml
+  project_name: test_ch
+
+interaction:
+  sh:
+    service: clickhouse
+    command: bash
+    compose_run_options: [no-deps]
+  client:
+    service: clickhouse
+    command: clickhouse-client --host clickhouse
+  seed:
+    service: clickhouse
+    command: clickhouse-client --host clickhouse -m -n --query "CREATE DATABASE IF NOT EXISTS my_database; USE my_database; CREATE TABLE IF NOT EXISTS my_table (client_id Int32, app_id Int32, session_id Int32, user_id Int32, method String, host String, path String, date_time String, status_code String, response_time String, user_ip String, custom_headers String, session_identifiers String) ENGINE = MergeTree() ORDER BY (client_id, app_id, session_id, user_id, date_time); INSERT INTO my_table FORMAT CSVWithNames" < ./data/my_data.csv
+
+provision:
+  - dip compose up -d
+  - dip seed

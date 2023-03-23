@@ -1,0 +1,5 @@
+version: '3'
+services:
+  clickhouse:
+    image: yandex/clickhouse-server
+    container_name: clickhouse
